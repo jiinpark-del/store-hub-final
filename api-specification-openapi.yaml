@@ -1,0 +1,833 @@
+openapi: 3.0.0
+info:
+  title: Store Hub API
+  description: All in One Store Hub - Complete REST API Specification
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: api@store-hub.com
+  license:
+    name: Internal Use Only
+
+servers:
+  - url: https://api.store-hub.com/v1
+    description: Production
+  - url: http://localhost:3000/v1
+    description: Development
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Token (Bearer <token>)
+
+  schemas:
+    # Request Schemas
+    CreateSalesRequest:
+      type: object
+      required:
+        - store_id
+        - date
+        - total_revenue
+        - cash_payment
+        - card_payment
+      properties:
+        store_id:
+          type: integer
+          description: Store ID
+          example: 1
+        date:
+          type: string
+          format: date
+          description: Sales date (YYYY-MM-DD)
+          example: "2026-08-18"
+        total_revenue:
+          type: number
+          format: decimal
+          description: Total revenue (must equal cash + card)
+          example: 1500.00
+          minimum: 0
+        cash_payment:
+          type: number
+          format: decimal
+          description: Cash payment amount
+          example: 1000.00
+          minimum: 0
+        card_payment:
+          type: number
+          format: decimal
+          description: Card payment amount
+          example: 500.00
+          minimum: 0
+        notes:
+          type: string
+          description: Optional notes
+          example: "Good day, busy afternoon"
+
+    UpdateSalesRequest:
+      type: object
+      required:
+        - total_revenue
+        - cash_payment
+        - card_payment
+        - version
+      properties:
+        total_revenue:
+          type: number
+          format: decimal
+          minimum: 0
+        cash_payment:
+          type: number
+          format: decimal
+          minimum: 0
+        card_payment:
+          type: number
+          format: decimal
+          minimum: 0
+        version:
+          type: integer
+          description: Current version (for Optimistic Locking)
+          example: 1
+
+    # Response Schemas
+    Sales:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        store_id:
+          type: integer
+        date:
+          type: string
+          format: date
+        total_revenue:
+          type: number
+          format: decimal
+        cash_payment:
+          type: number
+          format: decimal
+        card_payment:
+          type: number
+          format: decimal
+        version:
+          type: integer
+        created_by:
+          type: integer
+        updated_by:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # Error Responses
+    ValidationError:
+      type: object
+      required:
+        - error
+        - meta
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Validation failed"
+            details:
+              type: object
+              example:
+                field: "cash_payment"
+                constraint: "must be positive"
+                value: -100
+        meta:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+            request_id:
+              type: string
+              format: uuid
+
+    VersionMismatchError:
+      type: object
+      required:
+        - error
+        - meta
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VERSION_MISMATCH"
+            message:
+              type: string
+              example: "Record was modified by another user"
+            details:
+              type: object
+              properties:
+                your_version:
+                  type: integer
+                  example: 1
+                current_version:
+                  type: integer
+                  example: 5
+                modified_by:
+                  type: string
+                  example: "jane@store.com"
+                modified_at:
+                  type: string
+                  format: date-time
+        meta:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+            request_id:
+              type: string
+              format: uuid
+
+    DuplicateError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "DUPLICATE_ENTRY"
+            message:
+              type: string
+              example: "Sales entry already exists for this store on this date"
+            details:
+              type: object
+              properties:
+                existing_id:
+                  type: string
+                  format: uuid
+                date:
+                  type: string
+                  format: date
+                store_id:
+                  type: integer
+
+security:
+  - bearerAuth: []
+
+paths:
+  /sales:
+    post:
+      summary: Create Sales Record
+      description: Create a new sales entry for a store
+      operationId: createSales
+      tags:
+        - Sales
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique key to prevent duplicate submissions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSalesRequest'
+      responses:
+        201:
+          description: Sales created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Sales'
+                  meta:
+                    type: object
+                    properties:
+                      request_id:
+                        type: string
+                        format: uuid
+                      timestamp:
+                        type: string
+                        format: date-time
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        409:
+          description: Duplicate entry (sales already exists for this store/date)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateError'
+        422:
+          description: Business logic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+    get:
+      summary: List Sales Records
+      description: Get sales records for a store or date range
+      operationId: listSales
+      tags:
+        - Sales
+      parameters:
+        - name: store_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by store ID
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by specific date
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter from date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter to date
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+          description: Results per page
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+      responses:
+        200:
+          description: List of sales records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Sales'
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      count:
+                        type: integer
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+
+  /sales/{id}:
+    get:
+      summary: Get Sales Record
+      description: Retrieve a specific sales record by ID
+      operationId: getSales
+      tags:
+        - Sales
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Sales record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Sales'
+                  meta:
+                    type: object
+
+        404:
+          description: Sales record not found
+
+    put:
+      summary: Update Sales Record
+      description: Update an existing sales record (with Optimistic Locking)
+      operationId: updateSales
+      tags:
+        - Sales
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSalesRequest'
+      responses:
+        200:
+          description: Sales updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Sales'
+                  meta:
+                    type: object
+
+        409:
+          description: Version mismatch (record modified by another user)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionMismatchError'
+
+        422:
+          description: Validation error
+
+  /invoices/upload:
+    post:
+      summary: Upload Invoice Image
+      description: Upload an invoice image for OCR processing
+      operationId: uploadInvoice
+      tags:
+        - Invoices
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - store_id
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Invoice image file (JPEG, PNG)
+                store_id:
+                  type: integer
+                  description: Store ID
+      responses:
+        202:
+          description: Processing started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      invoice_id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+                        example: "processing"
+                      job_id:
+                        type: string
+                        format: uuid
+                      estimated_wait_time_sec:
+                        type: integer
+                        example: 3
+                  meta:
+                    type: object
+
+        400:
+          description: Invalid file or parameters
+        413:
+          description: File too large (max 50MB)
+
+  /invoices/{id}/ocr-result:
+    get:
+      summary: Get OCR Result
+      description: Retrieve OCR extraction result for an invoice
+      operationId: getOCRResult
+      tags:
+        - Invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OCR result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      invoice_id:
+                        type: string
+                        format: uuid
+                      supplier_name:
+                        type: string
+                      invoice_number:
+                        type: string
+                      total_amount:
+                        type: number
+                        format: decimal
+                      invoice_date:
+                        type: string
+                        format: date
+                      confidence_scores:
+                        type: object
+                        properties:
+                          supplier:
+                            type: number
+                            example: 0.98
+                          number:
+                            type: number
+                            example: 0.95
+                          amount:
+                            type: number
+                            example: 0.99
+                          date:
+                            type: number
+                            example: 0.92
+                      processing_time_ms:
+                        type: integer
+                        example: 2847
+                      ready_for_confirmation:
+                        type: boolean
+                  meta:
+                    type: object
+
+        202:
+          description: Still processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: "processing"
+                      progress_percent:
+                        type: integer
+                        example: 45
+                      estimated_remaining_sec:
+                        type: integer
+                        example: 2
+
+  /invoices/{id}/confirm:
+    post:
+      summary: Confirm OCR Result
+      description: Confirm and finalize OCR extracted data
+      operationId: confirmOCRResult
+      tags:
+        - Invoices
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - supplier_name
+                - invoice_number
+                - total_amount
+                - invoice_date
+              properties:
+                supplier_name:
+                  type: string
+                invoice_number:
+                  type: string
+                total_amount:
+                  type: number
+                  format: decimal
+                invoice_date:
+                  type: string
+                  format: date
+      responses:
+        200:
+          description: Invoice confirmed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      invoice_id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+                        example: "confirmed"
+                      confirmed_by:
+                        type: string
+                      confirmed_at:
+                        type: string
+                        format: date-time
+                  meta:
+                    type: object
+
+  /statements/upload:
+    post:
+      summary: Upload Statement File
+      description: Upload supplier statement for reconciliation
+      operationId: uploadStatement
+      tags:
+        - Reconciliation
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - supplier_id
+                - period_start
+                - period_end
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Statement file (Excel, CSV)
+                supplier_id:
+                  type: integer
+                period_start:
+                  type: string
+                  format: date
+                period_end:
+                  type: string
+                  format: date
+      responses:
+        202:
+          description: Parsing started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      statement_id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+                        example: "processing"
+                      message:
+                        type: string
+                      estimated_completion_sec:
+                        type: integer
+                  meta:
+                    type: object
+
+  /reconciliation/mismatches:
+    get:
+      summary: Get Reconciliation Mismatches
+      description: Retrieve unmatched invoices from statement reconciliation
+      operationId: getMismatches
+      tags:
+        - Reconciliation
+      parameters:
+        - name: statement_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: resolved
+          in: query
+          schema:
+            type: boolean
+          description: Filter by resolution status
+      responses:
+        200:
+          description: List of mismatches
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        issue_type:
+                          type: string
+                          enum: [missing_in_ocr, extra_in_ocr, amount_mismatch]
+                        severity:
+                          type: string
+                          enum: [critical, high, medium, low]
+                        store_id:
+                          type: integer
+                        store_name:
+                          type: string
+                        supplier_name:
+                          type: string
+                        invoice_number:
+                          type: string
+                        expected_amount:
+                          type: number
+                          format: decimal
+                        actual_amount:
+                          type: number
+                          format: decimal
+                        difference:
+                          type: number
+                          format: decimal
+                        is_resolved:
+                          type: boolean
+                  meta:
+                    type: object
+                    properties:
+                      total_mismatches:
+                        type: integer
+                      resolved_count:
+                        type: integer
+                      pending_count:
+                        type: integer
+
+  /reconciliation/mismatches/{id}/resolve:
+    post:
+      summary: Resolve Mismatch
+      description: Mark a reconciliation mismatch as resolved
+      operationId: resolveMismatch
+      tags:
+        - Reconciliation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resolution_action
+              properties:
+                resolution_action:
+                  type: string
+                  enum: [manual_entry, deleted, merged, approved]
+                notes:
+                  type: string
+      responses:
+        200:
+          description: Mismatch resolved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      mismatch_id:
+                        type: string
+                        format: uuid
+                      is_resolved:
+                        type: boolean
+                      resolved_by:
+                        type: string
+                      resolved_at:
+                        type: string
+                        format: date-time
+                  meta:
+                    type: object
+
+tags:
+  - name: Sales
+    description: Sales data management
+  - name: Invoices
+    description: Invoice upload and OCR processing
+  - name: Reconciliation
+    description: Statement reconciliation and mismatch resolution
+
+# ============================================================================
+# NOTES:
+# ============================================================================
+# Rate Limiting: 1000 requests/minute (default)
+# Idempotency: All POST/PUT requests must include Idempotency-Key header
+# Authentication: Bearer JWT token in Authorization header
+# Error Format: RFC 7807 (Problem Details) for all error responses
+# Versioning: URL-based (/v1/, /v2/, etc.)
+# ============================================================================
