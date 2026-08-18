@@ -170,14 +170,18 @@ export function useOfflineSync(): OfflineSyncState {
 
   // 온라인 복구 시 자동 동기화
   useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+
     if (!isOffline && pendingCount > 0 && !isSyncing) {
       // 짧은 딜레이 후 자동 동기화
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         sync();
       }, 1000);
-
-      return () => clearTimeout(timer);
     }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [isOffline, pendingCount, isSyncing, sync]);
 
   return {

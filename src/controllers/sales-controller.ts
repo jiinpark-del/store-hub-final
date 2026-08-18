@@ -137,7 +137,7 @@ router.use((error: unknown, req: Request, res: Response, next: NextFunction) => 
     },
     meta: { timestamp: new Date().toISOString(), version: '1.0.0' },
   };
-  res.status(500).json(response);
+  return res.status(500).json(response);
 });
 
 export default router;

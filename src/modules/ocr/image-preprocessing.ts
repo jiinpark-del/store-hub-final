@@ -87,7 +87,7 @@ async function adjustBrightness(imageBuffer: Buffer): Promise<Buffer> {
       .normalise() // Normalize image to enhance contrast
       .modulate({
         brightness: 1.1, // Slightly increase brightness
-        contrast: 1.2    // Slightly increase contrast
+        saturation: 1.2  // Slightly increase saturation
       })
       .toBuffer();
   } catch (error) {
