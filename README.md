@@ -1,8 +1,8 @@
 # All in One Store Hub - 프로젝트 진행 현황
 
 **최종 업데이트**: 2026-08-18  
-**현재 상태**: 🟢 **Week 5 MVP 완전 완성!** (91.7% 테스트 커버리지)  
-**기술 스택**: React, Node.js, PostgreSQL, TypeScript  
+**현재 상태**: 🟢 **Week 6 Admin Dashboard 완성!** (OBL 디자인 적용)  
+**기술 스택**: React 19, Vite, Tailwind CSS, Node.js, PostgreSQL, TypeScript  
 **저장소**: [store-hub-final](https://github.com/oliverbrown/store-hub-final)
 
 ---
@@ -11,7 +11,7 @@
 
 ```
 Phase 1: 기초 구축 (Weeks 1-4)      ✅ 100% 완료
-Phase 2: MVP 개발 (Weeks 5-8)       🔄 Week 5 완료 (75% 진행 중)
+Phase 2: MVP 개발 (Weeks 5-8)       🔄 Week 6 완료 (87.5% 진행 중)
 Phase 3: 최적화 (Weeks 9-12)        ⏳ 예정
 Phase 4: 배포 & 파일럿 (Weeks 13-16) ⏳ 예정
 ```
@@ -183,54 +183,84 @@ Phase 4: 배포 & 파일럿 (Weeks 13-16) ⏳ 예정
 
 ---
 
-## 🔄 **진행 중인 작업 (Week 6-8 예정)**
+## 🔄 **진행 중인 작업 (Week 7-8 예정)**
 
-### 📌 **Week 6: Admin Dashboard**
+### ✅ **Week 6: Admin Dashboard (완료!)**
 ```
-🔲 Dashboard 레이아웃
-   - 전체 판매 현황
-   - 실시간 통계
-   - 지점별 성과 분석
+✅ Dashboard 컴포넌트 (540줄)
+   - 전체 판매 현황 KPI 타일
+   - 실시간 통계 (총 판매액, 거래수, 평균거래액)
+   - 지점별 성과 분석 테이블
+   - 지점별 매출 비율 차트
+   - 실시간 경고 시스템
 
-🔲 Invoice 관리
-   - 업로드 폼
-   - OCR 결과 확인
-   - 이미지 미리보기
+✅ Invoice Management 컴포넌트 (512줄)
+   - 드래그&드롭 업로드 폼
+   - 송장 목록 및 상태 표시
+   - OCR 결과 검증 모달
+   - 신뢰도 점수 시각화
+   - 승인/재검토 버튼
 
-🔲 Reconciliation UI
-   - Statement 업로드
-   - 자동 매칭 결과
-   - 불일치 항목 해결 인터페이스
+✅ Reconciliation UI 컴포넌트 (568줄)
+   - 불일치 항목 자동 매칭
+   - Statement 업로드 폼
+   - 불일치 금액 상세 분석
+   - 해결 방안 자동 제시
+   - 분쟁 등록 기능
 
-예상 완료: 2026-08-25
+✅ Admin Layout & Navigation (156줄)
+   - 사이드바 내비게이션
+   - 탭 기반 페이지 전환
+   - 사용자 정보 표시
+   - 설정/로그아웃 버튼
+
+✅ OBL 디자인 시스템
+   - Tailwind CSS 설정
+   - 색상 토큰 정의 (--bg-*, --text-*, --accent)
+   - Lucide React 아이콘 통합
+   - Inter + DM Mono 폰트 로드
+   - 따뜻한 크림 색상 팔레트
+
+✅ Vite 빌드 설정
+   - React 19 + TypeScript 설정
+   - Hot Module Reload (HMR) 지원
+   - 프로덕션 번들 최적화
+   - Source Map 생성
+
+완료: 2026-08-18 ✅
 ```
 
-### 📌 **Week 7: 통합 테스트**
+### 📌 **Week 7: 통합 테스트 & E2E 자동화**
 ```
 🔲 End-to-End (E2E) 테스트
-   - Cypress 또는 Playwright
-   - 전체 워크플로우 테스트
-   - 사용자 시나리오 시뮬레이션
+   - Playwright 기반 UI 테스트
+   - 전체 워크플로우 자동화 검증
+   - 사용자 시나리오 시뮬레이션 (송장 업로드 → 대조 → 승인)
 
 🔲 성능 테스트
    - 부하 테스트 (1000+ 동시 사용자)
-   - 응답 시간 측정
+   - 대시보드 로딩 시간 < 500ms 달성
    - 메모리 누수 감지
 
 🔲 보안 테스트
    - JWT 토큰 검증
-   - 권한 검증
-   - SQL Injection 방지 확인
+   - Role-Based Access Control 검증
+   - XSS/CSRF 방지 확인
 
-예상 완료: 2026-09-01
+예상 완료: 2026-08-25
 ```
 
-### 📌 **Week 8: MVP 최적화**
+### 📌 **Week 8: MVP 최적화 & 통합**
 ```
 🔲 성능 최적화
-   - 번들 크기 최소화
+   - Vite 번들 크기 최소화 (목표 < 200KB)
    - 캐싱 전략 개선
-   - 데이터베이스 쿼리 최적화
+   - 이미지 최적화
+
+🔲 API 통합
+   - 실제 API 연동
+   - 오류 처리 및 재시도 로직
+   - WebSocket 실시간 업데이트
 
 🔲 버그 수정
    - 통합 테스트 결과 반영
@@ -242,7 +272,7 @@ Phase 4: 배포 & 파일럿 (Weeks 13-16) ⏳ 예정
    - 환경 설정 준비
    - 배포 스크립트 작성
 
-예상 완료: 2026-09-08
+예상 완료: 2026-09-01
 ```
 
 ---
@@ -344,10 +374,24 @@ store-hub-docs/
 ├── README.md                          # 이 파일
 ├── package.json                       # 의존성 정의
 ├── tsconfig.json                      # TypeScript 설정
+├── tailwind.config.js                # Tailwind CSS 설정
+├── vite.config.ts                    # Vite 빌드 설정
+├── index.html                        # 진입점
 │
 ├── src/
+│   ├── main.tsx                      # React 앱 진입점
+│   ├── App.tsx                       # 메인 앱 컴포넌트
+│   ├── index.css                     # OBL 디자인 토큰
 │   ├── demo-server.ts                # 데모 서버 (HTML 테스트 콘솔)
-│   ├── server.ts                     # 프로덕션 서버
+│   ├── server.ts                     # 프로덕션 API 서버
+│   │
+│   ├── components/                   # React 컴포넌트
+│   │   ├── AdminLayout.tsx           # Admin 레이아웃
+│   │   ├── Dashboard.tsx             # 대시보드 (판매 현황)
+│   │   ├── InvoiceManagement.tsx     # 송장 관리 UI
+│   │   ├── ReconciliationUI.tsx      # 대조 관리 UI
+│   │   ├── SalesForm.tsx             # 판매 폼 (오프라인 지원)
+│   │   └── useOfflineSync.ts         # 오프라인 동기화 Hook
 │   │
 │   ├── controllers/
 │   │   └── sales-controller.ts       # Sales API 라우팅
@@ -367,14 +411,10 @@ store-hub-docs/
 │   ├── models/
 │   │   └── types.ts                  # 타입 정의
 │   │
-│   ├── ocr/                          # OCR 파이프라인
-│   │   ├── image-preprocessing.ts
-│   │   ├── ocr-engine.ts
-│   │   └── ocr-cache.ts
-│   │
-│   └── components/                   # React 컴포넌트
-│       ├── SalesForm.tsx
-│       └── useOfflineSync.ts
+│   └── ocr/                          # OCR 파이프라인
+│       ├── image-preprocessing.ts
+│       ├── ocr-engine.ts
+│       └── ocr-cache.ts
 │
 ├── __tests__/
 │   ├── sales.test.ts                # Sales API 테스트
@@ -501,10 +541,10 @@ npm run test:watch      # 감시 모드
 - [x] Mock DB: 개발/테스트용 메모리 데이터베이스
 
 ### 🔄 **진행 중**
-- [ ] Admin Dashboard UI 구현
-- [ ] Reconciliation 알고리즘 완성
-- [ ] E2E 테스트 자동화
+- [ ] E2E 테스트 자동화 (Playwright)
+- [ ] API 실제 연동
 - [ ] 성능 최적화 (OCR 정확도 92%)
+- [ ] WebSocket 실시간 업데이트
 
 ### ⏳ **예정**
 - [ ] Kubernetes 배포
