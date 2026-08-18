@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
@@ -26,42 +26,6 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['DM Mono', 'monospace'],
-      },
-      fontSize: {
-        xs: ['12px', '16px'],
-        sm: ['14px', '20px'],
-        base: ['16px', '24px'],
-        lg: ['18px', '28px'],
-        xl: ['20px', '28px'],
-        '2xl': ['24px', '32px'],
-        '3xl': ['30px', '36px'],
-        '4xl': ['36px', '44px'],
-      },
-      borderRadius: {
-        md: '0.375rem',
-        lg: '0.5rem',
-        xl: '0.75rem',
-        full: '9999px',
-      },
-      spacing: {
-        px: '1px',
-        0: '0',
-        0.5: '0.125rem',
-        1: '0.25rem',
-        1.5: '0.375rem',
-        2: '0.5rem',
-        2.5: '0.625rem',
-        3: '0.75rem',
-        4: '1rem',
-        5: '1.25rem',
-        6: '1.5rem',
-        8: '2rem',
-        10: '2.5rem',
-        12: '3rem',
-        16: '4rem',
-        20: '5rem',
-        24: '6rem',
-        32: '8rem',
       },
     },
   },

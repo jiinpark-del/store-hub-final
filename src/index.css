@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* OBL Design System - Colour Tokens */
 :root {
   /* Backgrounds - Warm cream spectrum */
