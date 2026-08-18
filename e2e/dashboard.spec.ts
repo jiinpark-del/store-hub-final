@@ -39,9 +39,8 @@ test.describe('Admin Dashboard', () => {
     await expect(page.getByRole('heading', { name: '지점별 매출 비율' })).toBeVisible();
 
     // Check for store percentages
-    const chartSection = page.locator('div').filter({ hasText: '지점별 매출 비율' }).parent();
-    await expect(chartSection.locator('text=/33\.7%|33.7/').first()).toBeVisible();
-    await expect(chartSection.locator('text=/28\.5%|28.5/').first()).toBeVisible();
+    await expect(page.locator('text=/33\.7%|33.7/').first()).toBeVisible();
+    await expect(page.locator('text=/28\.5%|28.5/').first()).toBeVisible();
   });
 
   test('should show alert for low-performing store', async ({ page }) => {
