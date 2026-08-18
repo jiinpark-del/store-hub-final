@@ -1,8 +1,8 @@
 # All in One Store Hub - 프로젝트 진행 현황
 
 **최종 업데이트**: 2026-08-18  
-**현재 상태**: 🟢 **Week 6 Admin Dashboard 완성!** (OBL 디자인 적용)  
-**기술 스택**: React 19, Vite, Tailwind CSS, Node.js, PostgreSQL, TypeScript  
+**현재 상태**: 🟢 **Week 7 E2E 테스트 완성!** (Playwright 자동화)  
+**기술 스택**: React 18, Vite, Tailwind CSS, Playwright, Node.js, PostgreSQL, TypeScript  
 **저장소**: [store-hub-final](https://github.com/oliverbrown/store-hub-final)
 
 ---
@@ -11,7 +11,7 @@
 
 ```
 Phase 1: 기초 구축 (Weeks 1-4)      ✅ 100% 완료
-Phase 2: MVP 개발 (Weeks 5-8)       🔄 Week 6 완료 (87.5% 진행 중)
+Phase 2: MVP 개발 (Weeks 5-8)       🔄 Week 7 완료 (93.75% 진행 중)
 Phase 3: 최적화 (Weeks 9-12)        ⏳ 예정
 Phase 4: 배포 & 파일럿 (Weeks 13-16) ⏳ 예정
 ```
@@ -183,7 +183,33 @@ Phase 4: 배포 & 파일럿 (Weeks 13-16) ⏳ 예정
 
 ---
 
-## 🔄 **진행 중인 작업 (Week 7-8 예정)**
+## 🔄 **진행 중인 작업 (Week 8 예정)**
+
+### ✅ **Week 7: E2E 테스트 & 자동화 (완료!)**
+```
+✅ Playwright E2E 테스트 프레임워크 (684줄)
+   - playwright.config.ts (자동 서버 시작 설정)
+   - Dashboard E2E 테스트 (6개 시나리오)
+   - Invoice Management 테스트 (7개 시나리오)
+   - Reconciliation 테스트 (9개 시나리오)
+   - 총 22개 E2E 테스트 케이스
+
+✅ 테스트 시나리오
+   - 대시보드 로드 및 KPI 타일 확인
+   - 데이터 테이블 렌더링 검증
+   - 차트 및 통계 표시 확인
+   - 송장 업로드 폼 기능
+   - 송장 상세 모달 열기/닫기
+   - 대조 항목 모달 상호작용
+   - 탭 전환 기능 검증
+
+✅ 테스트 명령어
+   npm run test:e2e           # E2E 테스트 실행
+   npm run test:e2e:debug     # 디버그 모드
+   npm run test:e2e:ui        # UI 모드 (대화형)
+
+완료: 2026-08-18 ✅
+```
 
 ### ✅ **Week 6: Admin Dashboard (완료!)**
 ```
@@ -250,29 +276,33 @@ Phase 4: 배포 & 파일럿 (Weeks 13-16) ⏳ 예정
 예상 완료: 2026-08-25
 ```
 
-### 📌 **Week 8: MVP 최적화 & 통합**
+### 📌 **Week 8: MVP 최적화 & 성능 개선**
 ```
 🔲 성능 최적화
    - Vite 번들 크기 최소화 (목표 < 200KB)
-   - 캐싱 전략 개선
+   - 브라우저 캐싱 전략 개선
    - 이미지 최적화
+   - Code splitting
+
+🔲 CSS 스타일링 완성
+   - Tailwind CSS 통합 완료
+   - OBL 디자인 시스템 적용
+   - 반응형 레이아웃 수정
+   - 다크모드 고려 (향후)
 
 🔲 API 통합
-   - 실제 API 연동
+   - 실제 API 엔드포인트 연동
    - 오류 처리 및 재시도 로직
-   - WebSocket 실시간 업데이트
-
-🔲 버그 수정
-   - 통합 테스트 결과 반영
-   - 엣지 케이스 처리
-   - 사용자 피드백 반영
+   - WebSocket 실시간 업데이트 (준비)
+   - 인증 토큰 관리
 
 🔲 배포 준비
    - Docker 이미지 빌드
-   - 환경 설정 준비
+   - docker-compose 설정
+   - 환경 변수 관리
    - 배포 스크립트 작성
 
-예상 완료: 2026-09-01
+예상 완료: 2026-08-25
 ```
 
 ---
