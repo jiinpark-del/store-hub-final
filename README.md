@@ -345,6 +345,91 @@ Phase 4: 배포 & 파일럿 (Weeks 13-16) ⏳ 예정
 
 ---
 
+---
+
+## 🎯 **지금 해야 할 일 (사용자 액션 아이템)**
+
+### 1️⃣ **배포 환경 설정** (1-2시간)
+```
+📋 해야 할 일:
+□ Docker 이미지 빌드
+  docker build -t store-hub-admin:1.0 .
+  
+□ docker-compose.yml 설정
+  - frontend: 5173 (React)
+  - backend: 3000 (API)
+  - postgres: 5432 (Database)
+  - redis: 6379 (Cache)
+
+□ 환경 변수 설정
+  - .env.production
+  - DB 연결 정보
+  - API 엔드포인트
+
+📚 참고 파일:
+- PERFORMANCE-REPORT.md (성능 메트릭)
+- dist/ (프로덕션 빌드 완료)
+```
+
+### 2️⃣ **API 연동** (2-3시간)
+```
+📋 해야 할 일:
+□ 실제 API 엔드포인트 교체
+  - Mock DB → PostgreSQL 전환
+  - demo-server → production server
+
+□ 환경별 설정
+  - 개발: localhost:3000
+  - 스테이징: staging API
+  - 프로덕션: production API
+
+□ CORS 설정
+  - API CORS 정책
+  - 쿠키/인증 헤더
+
+📚 파일 위치:
+- src/config/database.ts (DB 설정)
+- src/components/*.tsx (API 호출 수정)
+```
+
+### 3️⃣ **브라우저 테스트** (1시간)
+```
+📋 해야 할 일:
+□ 프로덕션 빌드 테스트
+  npm run build
+  npm run preview
+
+□ 기능 검증
+  ✓ 대시보드 로드 확인
+  ✓ 송장 관리 작동 확인
+  ✓ 대조 기능 작동 확인
+  ✓ 탭 전환 확인
+
+□ 성능 확인
+  - Chrome DevTools (Network 탭)
+  - 로딩 시간 < 2초 확인
+  - 번들 크기 111KB 확인
+
+📚 테스트 방법:
+npm run preview  # 프로덕션 서버 시뮬레이션
+```
+
+### 4️⃣ **파일럿 준비** (선택사항)
+```
+📋 향후 할 일 (Phase 4):
+□ 5개 지점 데이터 준비
+□ 사용자 교육 자료 작성
+□ 운영 매뉴얼 작성
+□ 지원 팀 교육
+
+📅 예정 일정:
+- 2026-08-25: 스테이징 배포
+- 2026-09-01: 파일럿 시작
+- 2026-09-15: 피드백 수집
+```
+
+---
+
 ## ⏳ **향후 작업 (Week 9-16)**
 
 ### **Week 9-10: OCR 정확도 개선**
